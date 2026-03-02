@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>EPSO Simulator</title>
+  <style>
+    body{font-family:system-ui,Arial;margin:20px;max-width:900px}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .card{border:1px solid #ddd;border-radius:10px;padding:12px;margin:12px 0}
+    button{padding:10px 12px;border-radius:10px;border:1px solid #aaa;background:#f7f7f7;cursor:pointer}
+    button.primary{background:#111;color:#fff;border-color:#111}
+    .choice{display:block;margin:8px 0;padding:10px;border:1px solid #ddd;border-radius:10px;cursor:pointer}
+    .choice.correct{border-color:#2b8a3e}
+    .choice.wrong{border-color:#c92a2a}
+    .muted{color:#666}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+  </style>
+</head>
+<body>
+  <h1>EPSO AD5 2026 Simulator</h1>
+
+  <div class="card">
+    <div class="row">
+      <label>Mode:</label>
+      <select id="mode">
+        <option value="exam">Exam</option>
+        <option value="training">Training (adaptive)</option>
+      </select>
+
+      <label>Section:</label>
+      <select id="section">
+        <option value="full_exam">Full exam (all sections)</option>
+        <option value="verbal">Verbal (IT)</option>
+        <option value="numerical">Numerical (IT)</option>
+        <option value="abstract">Abstract (IT)</option>
+        <option value="eu_knowledge">EU Knowledge (EN)</option>
+        <option value="digital">Digital Skills (EN)</option>
+      </select>
+
+      <button class="primary" id="startBtn">Start</button>
+      <button id="resetStatsBtn">Reset stats</button>
+    </div>
+    <p class="muted">Exam Mode uses fixed timers and thresholds. Training Mode adapts difficulty and prioritizes your weak skills.</p>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div>Timer: <span class="mono" id="timer">--:--</span></div>
+      <div>Progress: <span class="mono" id="progress">0/0</span></div>
+      <div>Score: <span class="mono" id="score">0</span></div>
+    </div>
+  </div>
+
+  <div id="qCard" class="card" style="display:none">
+    <div class="muted" id="qMeta"></div>
+    <h2 id="qText"></h2>
+    <div id="choices"></div>
+    <div id="feedback" style="margin-top:10px"></div>
+    <div class="row" style="margin-top:12px">
+      <button id="nextBtn" class="primary" disabled>Next</button>
+      <button id="endBtn">End</button>
+    </div>
+  </div>
+
+  <div id="reportCard" class="card" style="display:none"></div>
+
+  <script src="quiz.js"></script>
+</body>
+</html>
