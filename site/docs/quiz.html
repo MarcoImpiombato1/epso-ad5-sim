@@ -5,65 +5,197 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>EPSO Simulator</title>
   <style>
-    body{font-family:system-ui,Arial;margin:20px;max-width:900px}
-    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-    .card{border:1px solid #ddd;border-radius:10px;padding:12px;margin:12px 0}
-    button{padding:10px 12px;border-radius:10px;border:1px solid #aaa;background:#f7f7f7;cursor:pointer}
-    button.primary{background:#111;color:#fff;border-color:#111}
-    .choice{display:block;margin:8px 0;padding:10px;border:1px solid #ddd;border-radius:10px;cursor:pointer}
-    .choice.correct{border-color:#2b8a3e}
-    .choice.wrong{border-color:#c92a2a}
-    .muted{color:#666}
+    :root{
+      --bg:#ffffff; --fg:#111111; --muted:#666;
+      --card:#ffffff; --border:#e5e5e5;
+      --btn:#f6f6f6; --btnfg:#111;
+      --primary:#111; --primaryfg:#fff;
+      --dangerbg:#ffe3e3; --dangerbd:#ffa8a8;
+      --ok:#2b8a3e; --bad:#c92a2a;
+      --shadow:0 10px 25px rgba(0,0,0,.06);
+      --accent:#228be6;
+      --flag:#fab005;
+    }
+    [data-theme="dark"]{
+      --bg:#0b0c0f; --fg:#f2f2f2; --muted:#a0a0a0;
+      --card:#11131a; --border:#232633;
+      --btn:#171a23; --btnfg:#f2f2f2;
+      --primary:#f2f2f2; --primaryfg:#111;
+      --dangerbg:#3a1416; --dangerbd:#6a2529;
+      --shadow:0 10px 25px rgba(0,0,0,.35);
+      --accent:#4dabf7;
+      --flag:#ffd43b;
+    }
+    body{background:var(--bg);color:var(--fg);font-family:system-ui,Arial;margin:18px;max-width:1050px}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin:14px 0;box-shadow:var(--shadow)}
+    button{padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--btn);color:var(--btnfg);cursor:pointer}
+    button.primary{background:var(--primary);color:var(--primaryfg);border-color:var(--primary)}
+    button.danger{background:var(--dangerbg);border-color:var(--dangerbd)}
+    button:disabled{opacity:.55;cursor:not-allowed}
+    select,input[type="number"],input[type="text"]{padding:9px;border-radius:12px;border:1px solid var(--border);background:var(--btn);color:var(--btnfg)}
+    .muted{color:var(--muted)}
     .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+    .pill{padding:5px 10px;border:1px solid var(--border);border-radius:999px}
+    .choice{display:block;margin:8px 0;padding:12px;border:1px solid var(--border);border-radius:14px;cursor:pointer}
+    .choice.correct{border-color:var(--ok)}
+    .choice.wrong{border-color:var(--bad)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+    .navgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(34px,34px));gap:6px}
+    .navbtn{padding:8px 0;border-radius:10px;text-align:center}
+    .navbtn.answered{outline:2px solid color-mix(in srgb, var(--ok) 55%, transparent)}
+    .navbtn.flagged{outline:2px solid color-mix(in srgb, var(--flag) 55%, transparent)}
+    .navbtn.current{box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent) inset}
+    table{border-collapse:collapse;width:100%;margin-top:10px}
+    th,td{border:1px solid var(--border);padding:8px;text-align:left}
+    th{background:color-mix(in srgb, var(--fg) 10%, transparent)}
+    .svgbox{border:1px solid var(--border);border-radius:14px;padding:10px;margin:10px 0;background:color-mix(in srgb, var(--fg) 6%, transparent)}
+    .kbd{border:1px solid var(--border);border-radius:8px;padding:2px 6px;font-family:ui-monospace}
+    /* modal */
+    .modalBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:18px}
+    .modal{max-width:520px;width:100%;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:14px}
   </style>
 </head>
 <body>
-  <h1>EPSO AD5 2026 Simulator</h1>
+  <div class="topbar">
+    <div>
+      <h1 style="margin:0">EPSO AD5 2026 Simulator</h1>
+      <div class="muted">L1 ITA (Reasoning) • L2 ENG (EU Knowledge, Digital)</div>
+    </div>
+    <div class="row">
+      <span class="pill"><label><input type="checkbox" id="darkToggle"> Dark mode</label></span>
+      <button id="helpBtn">Shortcuts</button>
+    </div>
+  </div>
 
   <div class="card">
-    <div class="row">
-      <label>Mode:</label>
-      <select id="mode">
-        <option value="exam">Exam</option>
-        <option value="training">Training (adaptive)</option>
-      </select>
-
-      <label>Section:</label>
-      <select id="section">
-        <option value="full_exam">Full exam (all sections)</option>
-        <option value="verbal">Verbal (IT)</option>
-        <option value="numerical">Numerical (IT)</option>
-        <option value="abstract">Abstract (IT)</option>
-        <option value="eu_knowledge">EU Knowledge (EN)</option>
-        <option value="digital">Digital Skills (EN)</option>
-      </select>
-
-      <button class="primary" id="startBtn">Start</button>
-      <button id="resetStatsBtn">Reset stats</button>
+    <div class="grid">
+      <div>
+        <div class="muted">Mode</div>
+        <select id="mode">
+          <option value="exam">Exam</option>
+          <option value="training">Training (adaptive)</option>
+        </select>
+      </div>
+      <div>
+        <div class="muted">Section</div>
+        <select id="section">
+          <option value="full_exam">Full exam (all sections)</option>
+          <option value="verbal">Verbal (IT)</option>
+          <option value="numerical">Numerical (IT)</option>
+          <option value="abstract">Abstract (IT)</option>
+          <option value="eu_knowledge">EU Knowledge (EN)</option>
+          <option value="digital">Digital Skills (EN)</option>
+        </select>
+      </div>
+      <div>
+        <div class="muted">Training questions</div>
+        <input id="trainN" type="number" min="5" max="80" value="20"/>
+      </div>
+      <div>
+        <div class="muted">Training timer (min)</div>
+        <input id="trainMin" type="number" min="5" max="120" value="25"/>
+      </div>
     </div>
-    <p class="muted">Exam Mode uses fixed timers and thresholds. Training Mode adapts difficulty and prioritizes your weak skills.</p>
+
+    <div class="row" style="margin-top:12px">
+      <button class="primary" id="startBtn">Start</button>
+      <button id="resetBtn" class="danger">Reset progress</button>
+      <span class="pill"><label><input type="checkbox" id="wrongOnly"/> Wrong-only</label></span>
+      <span class="pill"><label><input type="checkbox" id="flagOnly"/> Flagged-only</label></span>
+      <button id="exportBtn">Export</button>
+      <button id="importBtn">Import</button>
+      <input id="importFile" type="file" accept="application/json" style="display:none"/>
+    </div>
+
+    <div class="muted" style="margin-top:10px">
+      Exam mode: exam-like (no feedback while answering) + backtracking until submit/time.
+    </div>
   </div>
 
   <div class="card">
     <div class="row">
       <div>Timer: <span class="mono" id="timer">--:--</span></div>
       <div>Progress: <span class="mono" id="progress">0/0</span></div>
-      <div>Score: <span class="mono" id="score">0</span></div>
+      <div>Answered: <span class="mono" id="answeredCount">0</span></div>
+      <div>Flags: <span class="mono" id="flagsCount">0</span></div>
+      <button id="calcBtn">Calculator</button>
     </div>
   </div>
 
+  <div id="navCard" class="card" style="display:none">
+    <div class="row" style="justify-content:space-between">
+      <div><b>Question navigation</b> <span class="muted">(click a number)</span></div>
+      <div class="muted">Legend: green=answered, yellow=flagged</div>
+    </div>
+    <div id="navGrid" class="navgrid" style="margin-top:10px"></div>
+  </div>
+
   <div id="qCard" class="card" style="display:none">
-    <div class="muted" id="qMeta"></div>
-    <h2 id="qText"></h2>
+    <div class="row" style="justify-content:space-between">
+      <div class="muted" id="qMeta"></div>
+      <div class="row">
+        <button id="flagBtn">Flag</button>
+        <button id="skipBtn">Skip</button>
+      </div>
+    </div>
+
+    <div id="qFigure"></div>
+    <div id="qTable"></div>
+
+    <h2 id="qText" style="margin-top:10px"></h2>
     <div id="choices"></div>
     <div id="feedback" style="margin-top:10px"></div>
+
     <div class="row" style="margin-top:12px">
-      <button id="nextBtn" class="primary" disabled>Next</button>
+      <button id="prevBtn">Prev</button>
+      <button id="nextBtn" class="primary">Next</button>
+      <button id="submitBtn" class="primary">Submit section</button>
       <button id="endBtn">End</button>
     </div>
   </div>
 
   <div id="reportCard" class="card" style="display:none"></div>
+
+  <!-- Calculator modal -->
+  <div id="calcBackdrop" class="modalBackdrop">
+    <div class="modal">
+      <div class="row" style="justify-content:space-between">
+        <b>Calculator</b>
+        <button id="calcCloseBtn">Close</button>
+      </div>
+      <div class="muted" style="margin-top:8px">
+        Allowed: + − × ÷ parentheses, decimals, percent.
+        Example: <span class="kbd">80*(1-15%)</span>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <input id="calcInput" type="text" placeholder="Expression" style="flex:1;min-width:220px"/>
+        <button id="calcEvalBtn" class="primary">=</button>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <div class="muted">Result</div>
+        <div class="mono" id="calcOut" style="font-size:1.2rem">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shortcuts modal -->
+  <div id="helpBackdrop" class="modalBackdrop">
+    <div class="modal">
+      <div class="row" style="justify-content:space-between">
+        <b>Keyboard shortcuts</b>
+        <button id="helpCloseBtn">Close</button>
+      </div>
+      <ul class="muted" style="margin-top:10px">
+        <li><span class="kbd">A</span>..<span class="kbd">E</span>: choose answer</li>
+        <li><span class="kbd">←</span>/<span class="kbd">→</span>: prev/next</li>
+        <li><span class="kbd">F</span>: flag</li>
+        <li><span class="kbd">S</span>: skip (moves question to end)</li>
+        <li><span class="kbd">Enter</span>: next</li>
+      </ul>
+    </div>
+  </div>
 
   <script src="quiz.js"></script>
 </body>
