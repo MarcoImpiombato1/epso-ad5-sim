@@ -1,6 +1,0 @@
-site_name: EPSO AD5 2026 Simulator
-theme:
-  name: mkdocs
-nav:
-  - Home: index.md
-  - Simulator: quiz.html
