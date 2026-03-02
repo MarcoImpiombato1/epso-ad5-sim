@@ -4,3 +4,11 @@ theme:
 nav:
   - Home: index.md
   - Simulator: quiz.html
+  - Teoria:
+  - Panoramica: theory/index.md
+  - Istituzioni UE: theory/institutions.md
+  - Processo legislativo (OLP): theory/olp.md
+  - Trattati e fonti del diritto UE: theory/treaties_law.md
+  - Bilancio UE (base): theory/budget.md
+  - Digital Skills (DigComp): theory/digcomp.md
+  - Glossario essenziale: theory/glossary.md
